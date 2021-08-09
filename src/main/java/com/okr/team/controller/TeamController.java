@@ -63,6 +63,8 @@ public class TeamController {
         return Response.success("Get detail success!").withData(teamBean);
     }
 
+
+
     /**
      * Lấy chi tiết 1 loại
      *

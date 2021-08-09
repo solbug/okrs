@@ -56,20 +56,15 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         memberBO.setEmail(form.getEmail());
         memberBO.setMemberName(form.getMemberName());
         memberBO.setPassword(bCryptPasswordEncoder.encode(form.getPassword()));
+        memberBO.setIdTeam(form.getIdTeam());
         memberBO.setGender(form.getGender());
         return memberDAO.save(memberBO);
     }
 
-    /**
-     * saveOrUpdate
-     *
-     * @param entity
-     */
-    @Transactional
-    public void saveOrUpdate(MemberBO entity) {
-        memberDAO.save(entity);
+    @Override
+    public void saveOrUpdate(MemberBO member) {
+        memberDAO.save(member);
     }
-
 
     public List<MemberBO> findByIdTeam(Integer idTeam) {
         return memberDAO.findByIdTeam(idTeam);
@@ -89,13 +84,13 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     }
 
     @Override
-    public void delete(Integer id) {
-        memberDAO.deleteById(id);
+    public void delete(MemberBO bo) {
+        memberDAO.delete(bo);
     }
 
     @Override
     public MemberBO findById(Integer id) {
-        return memberDAO.findById(id).get();
+        return memberDAO.findById(id).orElse(null);
     }
 
     @Override

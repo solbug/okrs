@@ -47,10 +47,10 @@ public interface ObjectiveDAO extends JpaRepository<ObjectiveBO, Integer> {
         StringBuilder strCondition = new StringBuilder(" WHERE 1 = 1 ");
 
 
-//        Mixin.filter(formData.getId(), strCondition, paramList, "id");
-//        Mixin.filter(formData.getObjectiveName(), strCondition, paramList, "objective_name");
-//        Mixin.filter(formData.getLevel(), strCondition, paramList, "level");
-
+        Mixin.filter(formData.getId(), strCondition, paramList, "id");
+        Mixin.filter(formData.getObjectiveName(), strCondition, paramList, "objective_name");
+        Mixin.filter(formData.getLevel(), strCondition, paramList, "level");
+        Mixin.filter(formData.getLevel(), strCondition, paramList, "id_parent");
         String orderBy = " ORDER BY id DESC";
         return commonService.findPaginationQueryCustom(sql + strCondition.toString(), orderBy, paramList, ObjectiveBean.class, formData.getPage(), formData.getRecordPage());
     }

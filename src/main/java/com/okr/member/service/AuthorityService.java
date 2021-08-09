@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class AuthorityService {
@@ -26,5 +27,13 @@ public class AuthorityService {
      */
     public AuthorityBO findByMemberId(Integer memberId) {
         return authorityDAO.findByIdMember(memberId);
+    }
+
+    public List<AuthorityBO> findByIdMember(Integer id) {
+        return (List<AuthorityBO>) authorityDAO.findByIdMember(id);
+    }
+
+    public void delete(Integer id) {
+        authorityDAO.deleteById(id);
     }
 }

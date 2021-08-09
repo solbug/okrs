@@ -180,8 +180,7 @@ public class Mixin {
      * @param paramList
      * @param field
      */
-    public static void
-    filter(Integer n, StringBuilder queryString, List<Object> paramList, String field) {
+    public static void filter(Integer n, StringBuilder queryString, List<Object> paramList, String field) {
         if ((n != null) && (n > 0)) {
             queryString.append(" AND ").append(field).append(" = ? ");
             paramList.add(n);

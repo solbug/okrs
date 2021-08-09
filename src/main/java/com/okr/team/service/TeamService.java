@@ -24,8 +24,14 @@ public class TeamService {
         return teamDAO.findById(teamId).orElse(null);
     }
 
-    public List<TeamBO> findAll() {
-        return teamDAO.findAll();
+    /**
+     * find by Department
+     *
+     * @param idDepartment
+     * @return
+     */
+    public List<TeamBO> findByIdDepartment(Integer idDepartment) {
+        return teamDAO.findByIdDepartment(idDepartment);
     }
 
     /**
@@ -58,7 +64,4 @@ public class TeamService {
         teamDAO.delete(entity);
     }
 
-    public List<TeamBO> findByIdDepartment(Integer idDepartment) {
-        return teamDAO.findByIdDepartment(idDepartment);
-    }
 }

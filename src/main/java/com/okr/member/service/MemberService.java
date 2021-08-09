@@ -8,13 +8,13 @@ import java.util.List;
 public interface MemberService {
     MemberBO save(MemberForm form);
 
-    void saveOrUpdate(MemberBO user);
+    void saveOrUpdate(MemberBO member);
 
     MemberBO findOne(String email);
 
     List<MemberBO> findAll();
 
-    void delete(Integer id);
+    void delete(MemberBO bo);
 
     MemberBO findById(Integer id);
 

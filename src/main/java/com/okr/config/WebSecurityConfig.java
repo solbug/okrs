@@ -50,16 +50,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/api/signup",
                         "/api/member/forgot-password",
                         "/api/member/check-code",
-                        "/api/member/reset-password",
-                        "/swagger-ui*",
-                        "/auth/logoff"
+                        "/api/member/reset-password"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-        http.logout().logoutUrl("/auth/logoff");
+//        http.logout().logoutUrl("/auth/logoff");
     }
 
     @Bean

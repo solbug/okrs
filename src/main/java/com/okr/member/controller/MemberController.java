@@ -77,7 +77,7 @@ public class MemberController {
 
     // Lấy chi tiết member
     @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
-    @PostMapping(path = "/member/profile")
+    @GetMapping(path = "/member/profile")
     public MemberBO getProfileMember(HttpServletRequest request) {
         Principal principal = request.getUserPrincipal();
         String email = principal.getName();
@@ -85,21 +85,72 @@ public class MemberController {
         return memberBO;
     }
 
-    @PostMapping(path = "/signup")
-    public Response saveUser(@RequestBody MemberForm member) {
+    //    @PostMapping(path = "/signup")
+//    public Response saveUser(@RequestBody MemberForm member) {
+//
+//        System.out.println("Start: ============> ");
+//        System.out.println(member.toString());
+//        System.out.println("End: ============> ");
+//
+//        if (Mixin.isNullOrEmpty(member.getEmail())) {
+//            return Response.error("Vui lòng điền tên tài khoản đăng nhập vào hệ thống");
+//        }
+//        // Kiểm tra tồn tại theo Email
+//        MemberBO existUserByEmail = memberService.findOne(member.getEmail());
+//        if (!Mixin.isNullOrEmpty(member.getEmail()) && existUserByEmail != null) {
+//            return Response.error("Tài khoản " + member.getEmail() + " đã được đăng ký. Vui lòng thử lại với tài khoản khác");
+//        }
+//        if (Mixin.isNullOrEmpty(member.getPassword())) {
+//            return Response.error("Vui lòng điền mật khẩu");
+//        }
+//        // Validate email
+//        if (member.getEmail() != null && !member.getEmail().trim().equals("")) {
+//            String regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
+//            Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+//            Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(member.getEmail());
+//            if (!matcher.find()) {
+//                return Response.custom(Constants.RESPONSE_TYPE.ERROR, "Email " + member.getEmail() + " không hợp lệ");
+//            }
+//
+//            // Kiểm tra tồn tại của email
+//            MemberBO isExistUser = memberService.findByEmail(member.getEmail());
+//            if (isExistUser != null) {
+//                return Response.error("Email " + member.getEmail() + " đã được đăng ký. Vui lòng thử lại với email khác");
+//            }
+//        }
+//
+//
+//        MemberBO memberBO = memberService.save(member);
+//        mailService.sendEmail(member.getEmail(), "Chào bạn " + member.getMemberName() + " " + "\n" +
+//                "\n" +
+//                "Tên tài khoản : " + member.getEmail() + "\n" +
+//                "\n" +
+//                "Mật khẩu: " + member.getPassword(), "Econet: Đăng ký tài khoàn thành công");
+//        // Update bản ghi vào authority
+//        // Lấy id_role theo code truyền vào
+//        RoleBO roleBO = roleService.findByCode(member.getCodeRole());
+//        AuthorityBO authorityBO = new AuthorityBO();
+//        authorityBO.setIdRole(roleBO.getId());
+//        System.out.println("aaaaa===================="+roleBO.getId());
+//
+//        // Lấy lại memberBo => Lấy id bản ghi
+//        memberBO = memberService.findByEmail(member.getEmail());
+//        Integer memberId = memberBO.getId();
+//
+//        authorityBO.setIdMember(memberId);
+//        authorityService.saveOrUpdate(authorityBO);
+//
+//        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Đăng ký account thành công").withData(memberBO);
+//    }
 
-        System.out.println("Start: ============> ");
-        System.out.println(member.toString());
-        System.out.println("End: ============> ");
+    @PreAuthorize("hasRole('Admin')")
+    @PostMapping(path = "/member/add")
+    public Response saverMember(@RequestBody MemberForm member) {
 
         if (Mixin.isNullOrEmpty(member.getEmail())) {
-            return Response.error("Vui lòng điền tên tài khoản đăng nhập vào hệ thống");
+            return Response.error("Vui lòng điền email đăng nhập vào hệ thống");
         }
-        // Kiểm tra tồn tại theo Email
-        MemberBO existUserByEmail = memberService.findOne(member.getEmail());
-        if (!Mixin.isNullOrEmpty(member.getEmail()) && existUserByEmail != null) {
-            return Response.error("Tài khoản " + member.getEmail() + " đã được đăng ký. Vui lòng thử lại với tài khoản khác");
-        }
+
         if (Mixin.isNullOrEmpty(member.getPassword())) {
             return Response.error("Vui lòng điền mật khẩu");
         }
@@ -123,14 +174,12 @@ public class MemberController {
                 "\n" +
                 "Tên tài khoản : " + member.getEmail() + "\n" +
                 "\n" +
-                "Mật khẩu: " + member.getPassword(), "Econet: Đăng ký tài khoàn thành công");
+                "Mật khẩu: " + member.getPassword(), "Tài khoản được tạo thành công");
         // Update bản ghi vào authority
         // Lấy id_role theo code truyền vào
         RoleBO roleBO = roleService.findByCode(member.getCodeRole());
         AuthorityBO authorityBO = new AuthorityBO();
         authorityBO.setIdRole(roleBO.getId());
-        System.out.println("aaaaa===================="+roleBO.getId());
-
         // Lấy lại memberBo => Lấy id bản ghi
         memberBO = memberService.findByEmail(member.getEmail());
         Integer memberId = memberBO.getId();
@@ -138,15 +187,31 @@ public class MemberController {
         authorityBO.setIdMember(memberId);
         authorityService.saveOrUpdate(authorityBO);
 
-        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Đăng ký account thành công").withData(memberBO);
+        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thêm tài khoản thành công").withData(memberBO);
     }
 
+    @PreAuthorize("hasAnyRole('Admin')")
+    @PostMapping(path = "/member/update")
+    public Response updateMember(@RequestBody MemberForm memberForm) throws Exception {
+        Integer id = Mixin.NVL(memberForm.getId());
+        MemberBO memberBO = memberService.findById(id);
+        if (memberBO == null) {
+            return Response.warning(Constants.RESPONSE_CODE.RECORD_DELETED);
+        }
+        memberBO.setMemberName(memberForm.getMemberName());
+        memberBO.setGender(memberForm.getGender());
+        memberBO.setIdTeam(memberForm.getIdTeam());
+        memberService.saveOrUpdate(memberBO);
+        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Cập nhật thông tin thành công")
+                .withData(memberBO);
+    }
+
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
     @PostMapping(path = "/member/update-profile")
-    public @ResponseBody
-    Response processSearchVisitor(HttpServletRequest request, @ModelAttribute MemberForm memberForm) throws Exception {
+    public Response processSearchVisitor(HttpServletRequest request, @RequestBody MemberForm memberForm) throws Exception {
         Principal principal = request.getUserPrincipal();
         String email = principal.getName();
-        MemberBO memberBO = memberService.findOne(email);
+        MemberBO memberBO = memberService.findByEmail(email);
         memberBO.setMemberName(memberForm.getMemberName());
         memberBO.setGender(memberForm.getGender());
         memberBO.setIdTeam(memberForm.getIdTeam());
@@ -259,13 +324,13 @@ public class MemberController {
         return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thay đổi mật khẩu thành công");
     }
 
-    /**
-     * saveOrUpdate TeamBO
-     *
-     * @param form
-     * @return
-     * @throws Exception
-     */
+//    /**
+//     * saveOrUpdate member
+//     *
+//     * @param form
+//     * @return
+//     * @throws Exception
+//     */
 
 //    @PostMapping
 //    @ResponseStatus(HttpStatus.CREATED)
@@ -292,29 +357,33 @@ public class MemberController {
 //        return Response.success(Constants.RESPONSE_CODE.SUCCESS).withData(memberBO);
 //    }
 
-//    /**
-//     * delete
-//     *
-//     * @param memberId
-//     * @return
-//     */
-//    @DeleteMapping(path = "/{memberId}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public @ResponseBody
-//    Response delete(@PathVariable Integer memberId) {
-//
-//        MemberBO bo;
-//        if (memberId > 0L) {
-//            bo = memberService.findById(memberId);
-//            if (bo == null) {
-//                return Response.warning(Constants.RESPONSE_CODE.RECORD_DELETED);
-//            }
-//            memberService.delete(bo);
-//            return Response.success(Constants.RESPONSE_CODE.DELETE_SUCCESS);
-//        } else {
-//            return Response.error(Constants.RESPONSE_CODE.ERROR);
-//        }
-//    }
+    /**
+     * delete
+     *
+     * @param memberId
+     * @return
+     */
+    @DeleteMapping(path = "/member/{memberId}")
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody
+    Response delete(@PathVariable Integer memberId) {
+
+        MemberBO bo;
+        if (memberId > 0L) {
+            bo = memberService.findById(memberId);
+            if (bo == null) {
+                return Response.warning(Constants.RESPONSE_CODE.RECORD_DELETED);
+            }
+            AuthorityBO authorityBOS = authorityService.findByMemberId(bo.getId());
+            if(authorityBOS!= null){
+                authorityService.delete(authorityBOS.getIdMember());
+            }
+            memberService.delete(bo);
+            return Response.success(Constants.RESPONSE_CODE.DELETE_SUCCESS);
+        } else {
+            return Response.error(Constants.RESPONSE_CODE.ERROR);
+        }
+    }
 
 
 }
