@@ -19,11 +19,11 @@ public class ObjectiveBean {
     private Date endDate;
     private Integer level;
     private String objectiveName;
+    private String description;
     private Boolean status;
-    private String listRole;
-    private String listRoleName;
     private Integer idParent;
     private Integer idMember;
-    private String parentName;
+    private Integer idTeam;
+    private Integer idDepartment;
     private List<RateBean> listRate;
 }

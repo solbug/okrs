@@ -6,6 +6,7 @@ import com.okr.member.dao.MemberDAO;
 import com.okr.member.form.MemberForm;
 import com.okr.utils.CommonService;
 import com.okr.utils.DataTableResults;
+import com.okr.utils.Mixin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -15,7 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +30,8 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    private CommonService commonService;
 
     private Set<SimpleGrantedAuthority> getAuthority(MemberBO memberBO) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
@@ -96,6 +98,27 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Override
     public MemberBO findByEmail(String email) {
         return memberDAO.findByEmail(email);
+    }
+
+    @Override
+    public DataTableResults<MemberBean> getDataTables( MemberForm memberForm) {
+        List<Object> paramList = new ArrayList<>();
+
+        String sql = " SELECT ";
+        sql += "        id AS id          ";
+        sql += "       ,email AS email      ";
+        sql += "       ,gender AS gender     ";
+        sql += "       ,member_name as memberName     ";
+        sql += "       ,id_team AS idTeam     ";
+        sql += "      FROM `members` ";
+        StringBuilder strCondition = new StringBuilder(" WHERE 1 = 1 ");
+
+        Mixin.filter(memberForm.getId(), strCondition, paramList, "id");
+        Mixin.filter(memberForm.getMemberName(), strCondition, paramList, "member_name");
+        Mixin.filter(memberForm.getIdTeam(), strCondition, paramList, "id_team");
+
+        String orderBy = " ORDER BY id DESC";
+        return commonService.findPaginationQueryCustom(sql + strCondition.toString(), orderBy, paramList, MemberBean.class, memberForm.getPage(), memberForm.getRecordPage());
     }
 
 

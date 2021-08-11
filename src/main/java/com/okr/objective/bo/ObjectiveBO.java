@@ -37,13 +37,16 @@ public class ObjectiveBO implements Serializable {
     @Column(name = "objective_name")
     private String objectiveName;
 
+    private String description;
+
     private Boolean status;
 
-    private String listRole;
+    private Integer idTeam;
+
+    private Integer idDepartment;
 
     private Integer idMember;
 
     private Integer idParent;
-
 
 }

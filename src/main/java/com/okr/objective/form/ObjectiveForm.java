@@ -15,11 +15,12 @@ public class ObjectiveForm {
     private Date endDate;
     private Integer level;
     private String objectiveName;
+    private String description;
     private Boolean status;
     private Integer idParent;
     private Integer idMember;
-    private String listRole;
-    private String codeRole;
+    private Integer idTeam;
+    private Integer idDepartment;
     private Integer page;
     private Integer recordPage;
 }

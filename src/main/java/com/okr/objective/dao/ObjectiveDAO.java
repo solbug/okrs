@@ -32,17 +32,20 @@ public interface ObjectiveDAO extends JpaRepository<ObjectiveBO, Integer> {
     default DataTableResults<ObjectiveBean> getDatatables(CommonService commonService, ObjectiveForm formData) {
         List<Object> paramList = new ArrayList<>();
 
+
         String sql = " SELECT ";
-        sql += "        o.id AS id          ";
-        sql += "       ,o.objective_name AS objectiveName  ";
-        sql += "       ,o.level AS level        ";
-        sql += "       ,o.start_date AS startDate         ";
-        sql += "       ,o.end_date AS endDate          ";
-        sql += "       ,o.id_parent AS idParent          ";
-        sql += "       ,o.status AS status          ";
-        sql += "       ,o.id_member AS idMember          ";
-        sql += "       ,o.list_role AS listRole          ";
-        sql += "       FROM objectives o ";
+        sql += "        id AS id          ";
+        sql += "       ,objective_name AS objectiveName  ";
+        sql += "       ,level AS level        ";
+        sql += "       ,start_date AS startDate         ";
+        sql += "       ,end_date AS endDate          ";
+        sql += "       ,description AS description          ";
+        sql += "       ,id_team AS idTeam          ";
+        sql += "       ,id_department AS idDepartment          ";
+        sql += "       ,id_parent AS idParent          ";
+        sql += "       ,status AS status          ";
+        sql += "       ,id_member AS idMember          ";
+        sql += "       FROM objectives ";
 
         StringBuilder strCondition = new StringBuilder(" WHERE 1 = 1 ");
 
@@ -50,8 +53,11 @@ public interface ObjectiveDAO extends JpaRepository<ObjectiveBO, Integer> {
         Mixin.filter(formData.getId(), strCondition, paramList, "id");
         Mixin.filter(formData.getObjectiveName(), strCondition, paramList, "objective_name");
         Mixin.filter(formData.getLevel(), strCondition, paramList, "level");
-        Mixin.filter(formData.getLevel(), strCondition, paramList, "id_parent");
-        String orderBy = " ORDER BY id DESC";
+        Mixin.filter(formData.getIdTeam(), strCondition, paramList, "id_team");
+        Mixin.filter(formData.getIdDepartment(), strCondition, paramList, "id_department");
+        Mixin.filter(formData.getIdParent(), strCondition, paramList, "id_parent");
+        Mixin.filter(formData.getIdMember(), strCondition, paramList, "id_member");
+        String orderBy = " ORDER BY id ASC";
         return commonService.findPaginationQueryCustom(sql + strCondition.toString(), orderBy, paramList, ObjectiveBean.class, formData.getPage(), formData.getRecordPage());
     }
 
@@ -71,14 +77,24 @@ public interface ObjectiveDAO extends JpaRepository<ObjectiveBO, Integer> {
         sql += "       ,level AS level        ";
         sql += "       ,start_date AS startDate         ";
         sql += "       ,end_date AS endDate          ";
+        sql += "       ,description AS description          ";
+        sql += "       ,id_department AS idDepartment          ";
+        sql += "       ,id_team AS idTeam          ";
         sql += "       ,id_parent AS idParent          ";
         sql += "       ,status AS status          ";
         sql += "       ,id_member AS idMember          ";
-        sql += "       ,list_role AS listRole          ";
         sql += "       FROM objectives ";
+
+
         StringBuilder strCondition = new StringBuilder(" WHERE 1 = 1 ");
-        if ((formData.getCodeRole() != null)) {
-            strCondition.append(" AND ").append("\'" + formData.getCodeRole() + "\'").append(" in ").append(" (list_role)");
+        if ((formData.getIdDepartment() != null)) {
+            strCondition.append(" AND ").append("\'" + formData.getIdDepartment() + "\'").append(" in ").append(" (id_department)");
+        }
+        if ((formData.getIdTeam() != null)) {
+            strCondition.append(" AND ").append("\'" + formData.getIdTeam() + "\'").append(" in ").append(" (id_team)");
+        }
+        if ((formData.getIdMember() != null)) {
+            strCondition.append(" AND ").append("\'" + formData.getIdMember() + "\'").append(" in ").append(" (id_member)");
         }
         return commonService.list(sql + strCondition.toString(), paramList, ObjectiveBean.class);
     }

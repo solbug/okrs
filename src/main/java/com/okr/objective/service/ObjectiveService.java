@@ -45,27 +45,12 @@ public class ObjectiveService {
     public DataTableResults<ObjectiveBean> getDatatables(ObjectiveForm objectiveForm) {
         DataTableResults<ObjectiveBean> results = objectiveDAO.getDatatables(commonService, objectiveForm);
         List<ObjectiveBean> beans = results.getData();
-        // Khởi tạo 1 list danh sách tên role
-        List<String> listRoleName;
+
         List<ObjectiveBean> beans2 = new ArrayList<>();
-        for (ObjectiveBean bean : beans) {
-            // Set list tên role từ list role code
-            listRoleName = new ArrayList<>();
-            if (!Mixin.isNullOrEmpty(bean.getListRole())) {
-                List<String> listCodeRole = Arrays.asList(bean.getListRole().split(",", -1));
-                for (String roleCode : listCodeRole) {
-                    RoleBO roleBO = roleService.findByCode(roleCode);
-                    listRoleName.add(roleBO.getNameRole());
-                }
-            }
-            // Nếu có id cha
-            if (bean.getIdParent() != null && bean.getLevel().equals(Constants.LEVEL.TWO)) {
+        for (ObjectiveBean bean: beans){
+            if (bean.getIdParent() != null  && bean.getLevel().equals(Constants.LEVEL.TWO)){
                 Optional<ObjectiveBO> objectiveBO = objectiveDAO.findById(bean.getIdParent());
-                if (objectiveBO.isPresent()) {
-                    bean.setParentName(objectiveBO.get().getObjectiveName());
-                }
             }
-            bean.setListRoleName(String.join(",", listRoleName));
             beans2.add(bean);
         }
         results.setData(beans2);
@@ -73,7 +58,6 @@ public class ObjectiveService {
     }
 
     /**
-     * Truyền type = 1 là dành cho trang admin và 0 là dành cho trang user
      *
      * @param objectiveForm
      * @return

@@ -1,5 +1,7 @@
 package com.okr.objective.controller;
 
+import com.okr.member.bo.MemberBO;
+import com.okr.member.service.MemberService;
 import com.okr.objective.bean.ObjectiveBean;
 import com.okr.objective.bo.ObjectiveBO;
 import com.okr.objective.form.ObjectiveForm;
@@ -7,6 +9,7 @@ import com.okr.objective.service.ObjectiveService;
 import com.okr.rate.bean.RateBean;
 import com.okr.rate.bo.RateBO;
 import com.okr.rate.service.RateService;
+import com.okr.team.service.TeamService;
 import com.okr.utils.Constants;
 import com.okr.utils.DataTableResults;
 import com.okr.utils.Mixin;
@@ -18,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +36,12 @@ public class ObjectiveController {
 
     @Autowired
     private RateService rateService;
+
+    @Autowired
+    private MemberService memberService;
+
+    @Autowired
+    private TeamService teamService;
 
     /**
      * findById
@@ -67,11 +78,12 @@ public class ObjectiveController {
      * @param form
      * @return DataTableResults
      */
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Manager')")
     @GetMapping(path = "/get-all")
     public @ResponseBody
-    DataTableResults<ObjectiveBean> processSearch(@RequestBody ObjectiveForm form) {
-        return objectiveService.getDatatables(form);
+    DataTableResults<ObjectiveBean> processSearch(ObjectiveForm form) {
+        DataTableResults<ObjectiveBean> results = objectiveService.getDatatables(form);
+        return results;
     }
 
     /**
@@ -79,9 +91,9 @@ public class ObjectiveController {
      * @return DataTableResults
      */
     @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
-    @GetMapping(path = "/get-objective")
+    @GetMapping (path = "/get-objective")
     public @ResponseBody
-    Response getMenuWithType(@RequestBody ObjectiveForm form) {
+    Response getMenuWithType(ObjectiveForm form) {
         return Response.success("Get list success")
                 .withData(objectiveService.getObjectiveWithParent(form));
     }
@@ -97,7 +109,7 @@ public class ObjectiveController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    Response saveOrUpdate(@RequestBody ObjectiveForm form) {
+    Response saveOrUpdate(HttpServletRequest request, @RequestBody ObjectiveForm form) {
         Integer id = Mixin.NVL(form.getId());
         ObjectiveBO objectiveBO;
         if (id > 0L) {
@@ -123,11 +135,14 @@ public class ObjectiveController {
         } else {
             objectiveBO.setLevel(Constants.LEVEL.FOUR);
         }
+
         objectiveBO.setStartDate(form.getStartDate());
         objectiveBO.setEndDate(form.getEndDate());
+        objectiveBO.setDescription(form.getDescription());
         objectiveBO.setIdParent(form.getIdParent());
-        objectiveBO.setListRole(form.getListRole());
         objectiveBO.setIdMember(form.getIdMember());
+        objectiveBO.setIdDepartment(form.getIdDepartment());
+        objectiveBO.setIdTeam(form.getIdTeam());
         objectiveService.saveOrUpdate(objectiveBO);
         return Response.success(Constants.RESPONSE_CODE.SUCCESS).withData(objectiveBO);
     }
@@ -138,7 +153,7 @@ public class ObjectiveController {
      * @param objectId
      * @return
      */
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasRole('Manager')")
     @DeleteMapping(path = "/{objectId}")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
