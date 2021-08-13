@@ -18,7 +18,7 @@ public class TeamBean implements Serializable {
     private Integer id;
     private String teamName;
     private Integer idDepartment;
-    private String nameDepartment;
+    private String departmentName;
     private List<MemberBean> listMember;
     private Integer totalRecod;
 }

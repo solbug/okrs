@@ -26,5 +26,8 @@ public class TeamBO implements Serializable {
     @Column
     private Integer idDepartment;
 
+    @Column
+    private String departmentName;
+
 
 }

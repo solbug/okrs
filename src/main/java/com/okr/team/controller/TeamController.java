@@ -1,5 +1,7 @@
 package com.okr.team.controller;
 
+import com.okr.department.bo.DepartmentBO;
+import com.okr.department.service.DepartmentService;
 import com.okr.member.bean.MemberBean;
 import com.okr.member.bo.MemberBO;
 import com.okr.member.dao.MemberDAO;
@@ -36,6 +38,9 @@ public class TeamController {
     @Autowired
     private MemberDAO memberDAO;
 
+    @Autowired
+    private DepartmentService departmentService;
+
     /**
      * findById
      *
@@ -62,7 +67,6 @@ public class TeamController {
         teamBean.setListMember(memberBeans);
         return Response.success("Get detail success!").withData(teamBean);
     }
-
 
 
     /**
@@ -131,11 +135,12 @@ public class TeamController {
                 return Response.warning(Constants.RESPONSE_CODE.RECORD_DELETED);
             }
         } else {
-
             teamBO = new TeamBO();
         }
+        DepartmentBO departmentBO = departmentService.findById(form.getIdDepartment());
         teamBO.setTeamName(form.getTeamName());
         teamBO.setIdDepartment(form.getIdDepartment());
+        teamBO.setDepartmentName(departmentBO.getDepartmentName());
         teamService.saveOrUpdate(teamBO);
         return Response.success(Constants.RESPONSE_CODE.SUCCESS).withData(teamBO);
     }
