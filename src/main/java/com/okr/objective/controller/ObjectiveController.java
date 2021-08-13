@@ -1,6 +1,5 @@
 package com.okr.objective.controller;
 
-import com.okr.member.bo.MemberBO;
 import com.okr.member.service.MemberService;
 import com.okr.objective.bean.ObjectiveBean;
 import com.okr.objective.bo.ObjectiveBO;
@@ -14,6 +13,18 @@ import com.okr.utils.Constants;
 import com.okr.utils.DataTableResults;
 import com.okr.utils.Mixin;
 import com.okr.utils.Response;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,8 +33,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -91,11 +108,41 @@ public class ObjectiveController {
      * @return DataTableResults
      */
     @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
-    @GetMapping (path = "/get-objective")
+    @GetMapping(path = "/get-objective")
     public @ResponseBody
     Response getMenuWithType(ObjectiveForm form) {
         return Response.success("Get list success")
                 .withData(objectiveService.getObjectiveWithParent(form));
+    }
+
+    //Export Excel
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
+    @GetMapping(path = "/export-excel")
+    public @ResponseBody
+    Response exportExcel(ObjectiveForm form) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidFormatException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        DataTableResults<ObjectiveBean> results = objectiveService.getObjective(form);
+        List<ObjectiveBean> objectiveBeans = results.getData();
+        XSSFWorkbook wb = new XSSFWorkbook(new File("okrs.xlsx"));
+        XSSFSheet sheet = wb.getSheetAt(1);
+
+        XSSFRelation row = null; //khởi tạo hàng
+        XSSFCell cell = null; //khởi tạo ô dữ liệu
+        int size = 4;
+        cell = sheet.getRow(3).getCell(2);
+        cell.setCellValue(objectiveBeans.get(0).getMemberName());
+        cell = sheet.getRow(6).getCell(2);
+        cell.setCellValue(sdf.format(objectiveBeans.get(0).getStartDate()));
+        cell = sheet.getRow(6).getCell(3);
+        cell.setCellValue(sdf.format(objectiveBeans.get(0).getEndDate()));
+        cell = sheet.getRow(8).getCell(2);
+        cell.setCellValue(objectiveBeans.get(0).getObjectiveName());
+
+        FileOutputStream fileOutputStream = new FileOutputStream("objective.xlsx");
+        wb.write(fileOutputStream);
+        fileOutputStream.close();
+        wb.close();
+        return Response.success("Success");
     }
 
     /**

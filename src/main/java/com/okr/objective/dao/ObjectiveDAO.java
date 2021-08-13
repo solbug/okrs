@@ -3,6 +3,8 @@ package com.okr.objective.dao;
 import com.okr.objective.bean.ObjectiveBean;
 import com.okr.objective.bo.ObjectiveBO;
 import com.okr.objective.form.ObjectiveForm;
+import com.okr.team.bean.TeamBean;
+import com.okr.team.form.TeamForm;
 import com.okr.utils.CommonService;
 import com.okr.utils.DataTableResults;
 import com.okr.utils.Mixin;
@@ -20,7 +22,8 @@ public interface ObjectiveDAO extends JpaRepository<ObjectiveBO, Integer> {
 
     List<ObjectiveBO> findAllByIdParent(Integer idParent);
 
-    List<ObjectiveBO> findByIdMember(Integer idMember);
+    ObjectiveBO findByIdMember(Integer idMember);
+
 
     /**
      * get data by datatable
@@ -90,12 +93,28 @@ public interface ObjectiveDAO extends JpaRepository<ObjectiveBO, Integer> {
         if ((formData.getIdDepartment() != null)) {
             strCondition.append(" AND ").append("\'" + formData.getIdDepartment() + "\'").append(" in ").append(" (id_department)");
         }
-        if ((formData.getIdTeam() != null)) {
-            strCondition.append(" AND ").append("\'" + formData.getIdTeam() + "\'").append(" in ").append(" (id_team)");
-        }
-        if ((formData.getIdMember() != null)) {
-            strCondition.append(" AND ").append("\'" + formData.getIdMember() + "\'").append(" in ").append(" (id_member)");
-        }
         return commonService.list(sql + strCondition.toString(), paramList, ObjectiveBean.class);
+    }
+
+    default DataTableResults<ObjectiveBean> getObjective(CommonService commonService, ObjectiveForm formData) {
+        List<Object> paramList = new ArrayList<>();
+
+        String sql = " SELECT ";
+        sql += "        objectives.id AS id          ";
+        sql += "       ,start_date AS startDate      ";
+        sql += "       ,end_date AS endDate     ";
+        sql += "       ,level AS level     ";
+        sql += "       ,objective_name AS objectiveName     ";
+        sql += "       ,id_member AS idMember     ";
+        sql += "       ,description AS description     ";
+        sql += "       ,members.member_name AS memberName     ";
+        sql += "      FROM `objectives`JOIN members on objectives.id_member = members.id ";
+
+        StringBuilder strCondition = new StringBuilder(" WHERE 1 = 1 ");
+
+        Mixin.filter(formData.getIdMember(), strCondition, paramList, "id_member");
+        Mixin.filter(formData.getLevel(), strCondition, paramList, "level");
+        String orderBy = " ORDER BY id ASC";
+        return commonService.findPaginationQueryCustom(sql + strCondition.toString(), orderBy, paramList, ObjectiveBean.class, formData.getPage(), formData.getRecordPage());
     }
 }

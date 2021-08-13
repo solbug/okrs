@@ -36,17 +36,18 @@ public interface TeamDAO extends JpaRepository<TeamBO, Integer> {
         List<Object> paramList = new ArrayList<>();
 
         String sql = " SELECT ";
-        sql += "        id AS id          ";
+        sql += "        teams.id AS id          ";
         sql += "       ,team_name AS `teamName`      ";
         sql += "       ,id_department AS `idDepartment`     ";
-        sql += "      FROM teams ";
+        sql += "       ,departments.department_name AS `nameDepartment`     ";
+        sql += "     FROM teams JOIN departments ON teams.id_department = departments.id ";
 
         StringBuilder strCondition = new StringBuilder(" WHERE 1 = 1 ");
 
-        Mixin.filter(formData.getId(), strCondition, paramList, "id");
+        Mixin.filter(formData.getId(), strCondition, paramList, "teams.id");
         Mixin.filter(formData.getTeamName(), strCondition, paramList, "team_name");
         Mixin.filter(formData.getIdDepartment(), strCondition, paramList, "id_department");
-
+        Mixin.filter(formData.getNameDepartment(), strCondition, paramList, "departments.department_name");
         String orderBy = " ORDER BY id DESC";
         return commonService.findPaginationQueryCustom(sql + strCondition.toString(), orderBy, paramList, TeamBean.class, formData.getPage(), formData.getRecordPage());
     }

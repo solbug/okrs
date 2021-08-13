@@ -23,6 +23,7 @@ public class ObjectiveBean {
     private Boolean status;
     private Integer idParent;
     private Integer idMember;
+    private String memberName;
     private Integer idTeam;
     private Integer idDepartment;
     private List<RateBean> listRate;

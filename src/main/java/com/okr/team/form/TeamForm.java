@@ -11,6 +11,7 @@ public class TeamForm {
     private Integer id;
     private String teamName;
     private Integer idDepartment;
+    private String nameDepartment;
     private Integer page;
     private Integer recordPage;
 }

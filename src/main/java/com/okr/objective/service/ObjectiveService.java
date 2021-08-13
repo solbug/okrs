@@ -1,7 +1,5 @@
 package com.okr.objective.service;
 
-import com.okr.member.bo.RoleBO;
-import com.okr.member.service.RoleService;
 import com.okr.objective.bean.DataObjectiveBean;
 import com.okr.objective.bean.ObjectiveBean;
 import com.okr.objective.bo.ObjectiveBO;
@@ -10,13 +8,11 @@ import com.okr.objective.form.ObjectiveForm;
 import com.okr.utils.CommonService;
 import com.okr.utils.Constants;
 import com.okr.utils.DataTableResults;
-import com.okr.utils.Mixin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,12 +25,16 @@ public class ObjectiveService {
     @Autowired
     private CommonService commonService;
 
-    @Autowired
-    private RoleService roleService;
 
     public ObjectiveBO findById(Integer objectiveId) {
         return objectiveDAO.findById(objectiveId).orElse(null);
     }
+
+    public ObjectiveBO findByIdMember(Integer idMember) {
+        return objectiveDAO.findByIdMember(idMember);
+    }
+
+    ;
 
     /**
      * getDatatables
@@ -47,8 +47,8 @@ public class ObjectiveService {
         List<ObjectiveBean> beans = results.getData();
 
         List<ObjectiveBean> beans2 = new ArrayList<>();
-        for (ObjectiveBean bean: beans){
-            if (bean.getIdParent() != null  && bean.getLevel().equals(Constants.LEVEL.TWO)){
+        for (ObjectiveBean bean : beans) {
+            if (bean.getIdParent() != null && bean.getLevel().equals(Constants.LEVEL.TWO)) {
                 Optional<ObjectiveBO> objectiveBO = objectiveDAO.findById(bean.getIdParent());
             }
             beans2.add(bean);
@@ -58,7 +58,6 @@ public class ObjectiveService {
     }
 
     /**
-     *
      * @param objectiveForm
      * @return
      */
@@ -112,6 +111,10 @@ public class ObjectiveService {
         }
 
         return dataObjectiveBeans;
+    }
+
+    public DataTableResults<ObjectiveBean> getObjective(ObjectiveForm objectiveForm) {
+        return objectiveDAO.getObjective(commonService, objectiveForm);
     }
 
     /**
