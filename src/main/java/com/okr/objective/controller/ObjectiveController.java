@@ -108,18 +108,18 @@ public class ObjectiveController {
 
     //Export Excel
     @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
-    @GetMapping(path = "/export-excel")
+    @PostMapping(path = "/export-excel")
     public @ResponseBody
-    Response exportExcel(ObjectiveForm form) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidFormatException {
+    Response exportExcel(ObjectiveForm form) throws FileNotFoundException, IOException, ClassNotFoundException, InvalidFormatException, NullPointerException {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         DataTableResults<ObjectiveBean> results = objectiveService.getObjective(form);
         List<ObjectiveBean> objectiveBeans = results.getData();
         XSSFWorkbook wb = new XSSFWorkbook(new File("okrs.xlsx"));
-        XSSFSheet sheet = wb.getSheetAt(1);
 
+        //Template 1
+        XSSFSheet sheet = wb.getSheetAt(1);
         XSSFRelation row = null; //khởi tạo hàng
         XSSFCell cell = null; //khởi tạo ô dữ liệu
-        int size = 4;
         cell = sheet.getRow(3).getCell(2);
         cell.setCellValue(objectiveBeans.get(0).getMemberName());
         cell = sheet.getRow(6).getCell(2);
@@ -128,8 +128,25 @@ public class ObjectiveController {
         cell.setCellValue(sdf.format(objectiveBeans.get(0).getEndDate()));
         cell = sheet.getRow(8).getCell(2);
         cell.setCellValue(objectiveBeans.get(0).getObjectiveName());
+        cell = sheet.getRow(12).getCell(1);
+        cell.setCellValue(objectiveBeans.get(0).getDescription());
+        cell = sheet.getRow(12).getCell(2);
+        cell.setCellValue(sdf.format(objectiveBeans.get(0).getStartDate()) + " đến " + sdf.format(objectiveBeans.get(0).getEndDate()));
 
-        FileOutputStream fileOutputStream = new FileOutputStream("objective.xlsx");
+        //Template 2
+        XSSFSheet sheet2 = wb.getSheetAt(2);
+        XSSFRelation row1 = null; //khởi tạo hàng
+        XSSFCell cell1 = null; //khởi tạo ô dữ liệu
+        cell1 = sheet2.getRow(3).getCell(2);
+        cell1.setCellValue(objectiveBeans.get(0).getMemberName());
+        cell1 = sheet2.getRow(10).getCell(1);
+        cell1.setCellValue(objectiveBeans.get(0).getObjectiveName());
+
+        File file = new File("objective.xlsx");
+        if (file.exists()) {
+            file.createNewFile();
+        }
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
         wb.write(fileOutputStream);
         fileOutputStream.close();
         wb.close();
