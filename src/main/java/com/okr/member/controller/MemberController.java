@@ -1,5 +1,7 @@
 package com.okr.member.controller;
 
+import com.okr.department.bo.DepartmentBO;
+import com.okr.department.service.DepartmentService;
 import com.okr.mail.MailService;
 import com.okr.member.bean.MemberBean;
 import com.okr.member.bo.AuthorityBO;
@@ -9,6 +11,8 @@ import com.okr.member.form.*;
 import com.okr.member.service.AuthorityService;
 import com.okr.member.service.MemberService;
 import com.okr.member.service.RoleService;
+import com.okr.team.bo.TeamBO;
+import com.okr.team.service.TeamService;
 import com.okr.utils.Constants;
 import com.okr.utils.DataTableResults;
 import com.okr.utils.Mixin;
@@ -42,6 +46,12 @@ public class MemberController {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private DepartmentService departmentService;
+
+    @Autowired
+    private TeamService teamService;
+
     /**
      * findById
      *
@@ -49,7 +59,7 @@ public class MemberController {
      * @return
      */
     @GetMapping(path = "/member/{id}")
-    @PreAuthorize("hasAnyRole('Admin', 'Manager','Leader')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager','Leader','Member')")
     public @ResponseBody
     Response findById(@PathVariable Integer id) {
 
@@ -60,7 +70,7 @@ public class MemberController {
         return Response.success("Get Detail Success").withData(memberBO);
     }
 
-    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager','Leader','Member')")
     @RequestMapping(value = "/member/get-all", method = RequestMethod.GET)
     public @ResponseBody
     DataTableResults<MemberBean> processSearch(MemberForm form) {
@@ -142,9 +152,25 @@ public class MemberController {
         if (memberBO == null) {
             return Response.warning(Constants.RESPONSE_CODE.RECORD_DELETED);
         }
+        DepartmentBO departmentBO = departmentService.findById(memberForm.getIdDepartment());
+        TeamBO teamBO = teamService.findById(memberBO.getIdTeam());
         memberBO.setMemberName(memberForm.getMemberName());
         memberBO.setGender(memberForm.getGender());
+        memberBO.setIdDepartment(memberForm.getIdDepartment());
+        memberBO.setDepartmentName(departmentBO.getDepartmentName());
         memberBO.setIdTeam(memberForm.getIdTeam());
+        memberBO.setTeamName(teamBO.getTeamName());
+
+        // Lấy member id từ token
+        Integer memberId = memberBO.getId();
+        String codeRole = memberForm.getCodeRole();
+        RoleBO roleBO = roleService.findByCode(codeRole);
+        // Lấy role id từ role Code
+        Integer roleId = roleBO.getId();
+        AuthorityBO authorityBO = authorityService.findByMemberId(memberId);
+        authorityBO.setIdRole(roleId);
+        // Update lại role id của bản ghi trong DB
+        authorityService.saveOrUpdate(authorityBO);
         memberService.saveOrUpdate(memberBO);
         return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Cập nhật thông tin thành công")
                 .withData(memberBO);
@@ -167,7 +193,7 @@ public class MemberController {
 
     // Resert password
     @PreAuthorize("hasRole('Admin')")
-    @PostMapping(path = "/member/resert-password")
+    @PostMapping(path = "/member/resert")
     public Response resertPassword(@RequestBody MemberForm form) {
         Integer id = Mixin.NVL(form.getId());
         MemberBO memberBO = memberService.findById(id);
@@ -203,29 +229,6 @@ public class MemberController {
         }
         mailService.sendEmail(memberBO.getEmail(), "Mật khẩu của bạn được thay đổi thành : " + form.getNewPassword(), "Econet: Thay đổi mật khẩu thành công tài khoản " + memberBO.getEmail());
         return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thay đổi mật khẩu thành công");
-    }
-
-    // Đổi role cho member
-    @PreAuthorize("hasRole('Admin')")
-    @PostMapping(path = "/member/update-role")
-    public Response updateRoleMember(@RequestBody ChangeRoleForm form) {
-
-        System.out.println("Start: ============> ");
-        System.out.println(form.toString());
-        System.out.println("End: ============> ");
-        // Lấy email
-        MemberBO memberBO = memberService.findById(form.getIdMember());
-        // Lấy member id từ token
-        Integer memberId = memberBO.getId();
-        String codeRole = form.getCodeRole();
-        RoleBO roleBO = roleService.findByCode(codeRole);
-        // Lấy role id từ role Code
-        Integer roleId = roleBO.getId();
-        AuthorityBO authorityBO = authorityService.findByMemberId(memberId);
-        authorityBO.setIdRole(roleId);
-        // Update lại role id của bản ghi trong DB
-        authorityService.saveOrUpdate(authorityBO);
-        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thay đổi role thành công");
     }
 
     // Quên mật khẩu

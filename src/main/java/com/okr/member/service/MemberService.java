@@ -15,7 +15,7 @@ public interface MemberService {
 
     MemberBO findOne(String email);
 
-    List<MemberBO> findAll();
+    List<MemberBO> findAll(String search);
 
     void delete(MemberBO bo);
 

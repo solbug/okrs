@@ -18,6 +18,9 @@ public class MemberBean {
     private String memberName;
     private String password;
     private Integer idTeam;
+    private String teamName;
+    private Integer idDepartment;
+    private String departmentName;
     private String token;
     private List<ObjectiveBean> listObjective;
     private String codeRole;

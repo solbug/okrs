@@ -48,7 +48,7 @@ public class TeamController {
      * @return
      */
     @GetMapping(path = "/{teamID}")
-    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager','Leader','Member')")
     public @ResponseBody
     Response findById(@PathVariable Integer teamID) {
         TeamBO teamBO = teamService.findById(teamID);
@@ -75,6 +75,8 @@ public class TeamController {
      * @param form
      * @return
      */
+    @PreAuthorize("hasAnyRole('Admin', 'Manager','Leader','Member')")
+
     @GetMapping(path = "/get-detail")
     public @ResponseBody
     Response getDetailsVisitor(@RequestBody TeamForm form) {
@@ -102,7 +104,7 @@ public class TeamController {
      * @return DataTableResults
      */
     @GetMapping(path = "/get-all")
-    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager','Leader', 'Member')")
     public @ResponseBody
     DataTableResults<TeamBean> processSearch(TeamForm form) {
         DataTableResults<TeamBean> results = teamService.getDatatables(form);
@@ -122,7 +124,7 @@ public class TeamController {
      * @throws Exception
      */
     @PostMapping
-    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    @PreAuthorize("hasRole('Admin')")
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     Response saveOrUpdate(@RequestBody TeamForm form) throws Exception {
@@ -152,7 +154,7 @@ public class TeamController {
      * @return
      */
     @DeleteMapping(path = "/{teamId}")
-    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    @PreAuthorize("hasRole('Admin')")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
     Response delete(@PathVariable Integer teamId) {

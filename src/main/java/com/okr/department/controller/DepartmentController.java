@@ -43,7 +43,7 @@ public class DepartmentController {
      * @param id
      * @return
      */
-    @PreAuthorize("hasAnyRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Leader','Member')")
     @GetMapping(path = "/{id}")
     public @ResponseBody
     Response findById(@PathVariable Integer id) {
@@ -73,7 +73,7 @@ public class DepartmentController {
      * @param form
      * @return
      */
-    @PreAuthorize("hasAnyRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Leader','Member')")
     @GetMapping(path = "/get-detail")
     public @ResponseBody
     Response getDetail(@RequestBody DepartmentForm form) {
@@ -103,7 +103,7 @@ public class DepartmentController {
      * @return DataTableResults
      */
     @GetMapping(path = "/get-all")
-    @PreAuthorize("hasAnyRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Leader','Member')")
     public @ResponseBody
     DataTableResults<DepartmentBean> processSearch(DepartmentForm form) {
         DataTableResults<DepartmentBean> results = departmentService.getDatatables(form);
@@ -125,7 +125,7 @@ public class DepartmentController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyRole('Admin')")
+    @PreAuthorize("hasRole('Admin')")
     public @ResponseBody
     Response saveOrUpdate(@RequestBody DepartmentForm form) throws Exception {
         Integer id = Mixin.NVL(form.getId());
@@ -151,8 +151,7 @@ public class DepartmentController {
      * @return
      */
     @DeleteMapping(path = "/{id}")
-    @PreAuthorize("hasAnyRole('Admin')")
-    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('Admin')")
     public @ResponseBody
     Response delete(@PathVariable Integer id) {
         DepartmentBO bo;

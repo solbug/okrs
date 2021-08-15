@@ -32,7 +32,13 @@ public class MemberBO implements Serializable {
 
     private Integer idTeam;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private String teamName;
+
+    private Integer idDepartment;
+
+    private String departmentName;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "authority", joinColumns = {
             @JoinColumn(name = "id_member")}, inverseJoinColumns = {
             @JoinColumn(name = "id_role")

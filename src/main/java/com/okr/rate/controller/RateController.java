@@ -47,7 +47,7 @@ public class RateController {
      * @return DataTableResults
      */
     @GetMapping(path = "/get-all")
-    @PreAuthorize("hasAnyRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
     public @ResponseBody
     DataTableResults<RateBean> processSearch(RateForm form) {
 

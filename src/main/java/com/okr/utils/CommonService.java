@@ -129,7 +129,7 @@ public class CommonService {
 
     public <T> DataTableResults<T> findPaginationQueryCustom(String nativeQuery, String orderBy
             , List<Object> paramList, Class obj, Integer pageSize, Integer pageNumber) {
-        return findPaginationCustom(nativeQuery, orderBy, paramList, obj, pageSize, pageNumber);
+        return findPaginationCustom(nativeQuery, orderBy, paramList, obj,pageNumber, pageSize);
     }
 
     private <T> DataTableResults<T> findPaginationCustom(String nativeQuery, String orderBy, List<Object> paramList

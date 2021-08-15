@@ -13,14 +13,7 @@ import com.okr.utils.Constants;
 import com.okr.utils.DataTableResults;
 import com.okr.utils.Mixin;
 import com.okr.utils.Response;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -33,14 +26,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -95,7 +86,7 @@ public class ObjectiveController {
      * @param form
      * @return DataTableResults
      */
-    @PreAuthorize("hasRole('Manager')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader', 'Member')")
     @GetMapping(path = "/get-all")
     public @ResponseBody
     DataTableResults<ObjectiveBean> processSearch(ObjectiveForm form) {
@@ -200,7 +191,7 @@ public class ObjectiveController {
      * @param objectId
      * @return
      */
-    @PreAuthorize("hasRole('Manager')")
+    @PreAuthorize("hasAnyRole('Admin', 'Manager', 'Leader')")
     @DeleteMapping(path = "/{objectId}")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody
