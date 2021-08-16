@@ -4,6 +4,7 @@ import com.okr.department.bo.DepartmentBO;
 import com.okr.department.service.DepartmentService;
 import com.okr.member.bean.MemberBean;
 import com.okr.member.bo.MemberBO;
+import com.okr.member.bo.RoleBO;
 import com.okr.member.dao.MemberDAO;
 import com.okr.member.form.MemberForm;
 import com.okr.team.bo.TeamBO;
@@ -44,6 +45,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Autowired
     private TeamService teamService;
 
+
     private Set<SimpleGrantedAuthority> getAuthority(MemberBO memberBO) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         memberBO.getRoles().forEach(role -> {
@@ -61,7 +63,7 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         memberBO.setDepartmentName(departmentBO.getDepartmentName());
         TeamBO teamBO = teamService.findById(form.getIdTeam());
         memberBO.setIdTeam(form.getIdTeam());
-        memberBO.setTeamName(form.getTeamName());
+        memberBO.setTeamName(teamBO.getTeamName());
         memberBO.setMemberName(form.getMemberName());
         memberBO.setPassword(bCryptPasswordEncoder.encode(form.getPassword()));
         memberBO.setGender(form.getGender());
@@ -120,7 +122,6 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
         sql += "       ,email AS email      ";
         sql += "       ,gender AS gender     ";
         sql += "       ,member_name as memberName     ";
-        sql += "       ,`password` as password     ";
         sql += "       ,members.id_team AS idTeam      ";
         sql += "       ,members.team_name AS teamName     ";
         sql += "       ,members.id_department AS idDepartment    ";

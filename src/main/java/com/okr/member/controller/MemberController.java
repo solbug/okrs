@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,7 +141,7 @@ public class MemberController {
 
         authorityBO.setIdMember(memberId);
         authorityService.saveOrUpdate(authorityBO);
-
+        memberBO.setRoles(Collections.singleton(roleBO));
         return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thêm tài khoản thành công").withData(memberBO);
     }
 
@@ -172,6 +173,7 @@ public class MemberController {
         // Update lại role id của bản ghi trong DB
         authorityService.saveOrUpdate(authorityBO);
         memberService.saveOrUpdate(memberBO);
+        memberBO.setRoles(Collections.singleton(roleBO));
         return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Cập nhật thông tin thành công")
                 .withData(memberBO);
     }
