@@ -45,7 +45,6 @@ public class MemberServiceImpl implements UserDetailsService, MemberService {
     @Autowired
     private TeamService teamService;
 
-
     private Set<SimpleGrantedAuthority> getAuthority(MemberBO memberBO) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         memberBO.getRoles().forEach(role -> {

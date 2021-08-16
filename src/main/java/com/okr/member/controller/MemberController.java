@@ -17,6 +17,7 @@ import com.okr.utils.Constants;
 import com.okr.utils.DataTableResults;
 import com.okr.utils.Mixin;
 import com.okr.utils.Response;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -141,8 +142,10 @@ public class MemberController {
 
         authorityBO.setIdMember(memberId);
         authorityService.saveOrUpdate(authorityBO);
-        memberBO.setRoles(Collections.singleton(roleBO));
-        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thêm tài khoản thành công").withData(memberBO);
+        MemberBean memberBean = new MemberBean();
+        memberBean.setCodeRole(roleBO.getCode());
+        BeanUtils.copyProperties(memberBO, memberBean);
+        return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Thêm tài khoản thành công").withData(memberBean);
     }
 
     @PreAuthorize("hasAnyRole('Admin')")
@@ -153,13 +156,13 @@ public class MemberController {
         if (memberBO == null) {
             return Response.warning(Constants.RESPONSE_CODE.RECORD_DELETED);
         }
+        memberBO.setIdDepartment(memberForm.getIdDepartment());
         DepartmentBO departmentBO = departmentService.findById(memberForm.getIdDepartment());
+        memberBO.setIdTeam(memberForm.getIdTeam());
         TeamBO teamBO = teamService.findById(memberBO.getIdTeam());
         memberBO.setMemberName(memberForm.getMemberName());
         memberBO.setGender(memberForm.getGender());
-        memberBO.setIdDepartment(memberForm.getIdDepartment());
         memberBO.setDepartmentName(departmentBO.getDepartmentName());
-        memberBO.setIdTeam(memberForm.getIdTeam());
         memberBO.setTeamName(teamBO.getTeamName());
 
         // Lấy member id từ token
@@ -173,9 +176,11 @@ public class MemberController {
         // Update lại role id của bản ghi trong DB
         authorityService.saveOrUpdate(authorityBO);
         memberService.saveOrUpdate(memberBO);
-        memberBO.setRoles(Collections.singleton(roleBO));
+        MemberBean memberBean = new MemberBean();
+        memberBean.setCodeRole(roleBO.getCode());
+        BeanUtils.copyProperties(memberBO, memberBean);
         return Response.success(Constants.RESPONSE_CODE.SUCCESS, "Cập nhật thông tin thành công")
-                .withData(memberBO);
+                .withData(memberBean);
     }
 
     //Update
