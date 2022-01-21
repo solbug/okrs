@@ -27,5 +27,4 @@ public class RoleBO implements Serializable {
 
     private String code;
 
-
 }
